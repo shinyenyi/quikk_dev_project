@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "quikk-f65e1": {
+      "hosting": {
+        "quikk-dev-project": [
+          "quikk-f65e1"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "quikk-f65e1"
+  }
+}

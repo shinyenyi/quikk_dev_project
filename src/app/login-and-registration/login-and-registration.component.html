@@ -1,0 +1,62 @@
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="main">
+    <input type="checkbox" id="chk" aria-hidden="true">
+
+    <div class="signup">
+      <form [formGroup]="signupForm" (ngSubmit)="submitSignupForm()">
+        <label for="chk" aria-hidden="true">Sign up</label>
+        <mat-error *ngIf="username?.errors?.['required'] && username?.touched">
+          Username is required
+        </mat-error>
+        <input type="text" formControlName="username" placeholder="User name">
+        <mat-error *ngIf="signupEmail?.errors?.['required'] && signupEmail?.touched">
+          Email address is required
+        </mat-error>
+        <mat-error *ngIf="signupEmail?.errors?.['email'] && signupEmail?.touched">
+          Please enter a valid email address
+        </mat-error>
+        <input type="email" formControlName="signupEmail" placeholder="Email">
+        <mat-error *ngIf="signupForm.errors?.['passwordsDontMatch']">
+          passwords should match
+        </mat-error>
+        <mat-error *ngIf="signupPassword?.errors?.['required'] && signupPassword?.touched">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="signupPassword?.errors?.minlength && signupPassword?.touched">
+          Password is short
+        </mat-error>
+        <input type="password" formControlName="signupPassword" placeholder="Password">
+        <mat-error *ngIf="confirmPassword?.errors?.['required'] && confirmPassword?.touched">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="confirmPassword?.errors?.minlength && confirmPassword?.touched">
+          Password is short
+        </mat-error>
+        <input type="password" formControlName="confirmPassword" placeholder="Confirm Password">
+        <button type="submit">Sign up</button>
+      </form>
+    </div>
+
+    <div class="login">
+      <form [formGroup]="loginForm" (ngSubmit)="submitLoginForm()">
+        <label for="chk" aria-hidden="true">Login</label>
+        <mat-error *ngIf="email?.errors?.['required'] && email?.touched">
+          Email address is required
+        </mat-error>
+        <mat-error *ngIf="email?.errors?.['email'] && email?.touched">
+          Please enter a valid email address
+        </mat-error>
+        <input type="email" formControlName="email" placeholder="Email" />
+        <mat-error *ngIf="password?.errors?.['required'] && password?.touched">
+          Password is required
+        </mat-error>
+        <input type="password" formControlName="password" placeholder="Password" />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</body>
