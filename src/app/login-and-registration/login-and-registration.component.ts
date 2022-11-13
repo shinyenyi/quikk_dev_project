@@ -1,8 +1,12 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
+import { Auth } from '@angular/fire/auth';
 import { LoginAndRegistrationService } from './login-and-registration.service';
+import { User } from '../my-account/my-account-request-response';
+import { Database, set, ref, update, onValue, remove } from '@angular/fire/database';
 
 export function passwordsMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -31,17 +35,19 @@ export class LoginAndRegistrationComponent implements OnInit {
   });
 
   signupForm = new FormGroup({
-    username: new FormControl(null, [Validators.required]),
-    signupEmail: new FormControl(null, [Validators.required, Validators.email]),
-    signupPassword: new FormControl(null, [Validators.required, Validators.minLength(6)]),
-    confirmPassword: new FormControl(null, [Validators.required, Validators.minLength(6)]),
+    username: new FormControl('', [Validators.required]),
+    signupEmail: new FormControl('', [Validators.required, Validators.email]),
+    signupPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    confirmPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
   },
     { validators: passwordsMatchValidator() }
   );
 
   constructor(private loginAndRegistrationService: LoginAndRegistrationService,
     private router: Router,
-    private toast: HotToastService
+    private toast: HotToastService,
+    private auth: Auth,
+    private database: Database
   ) { }
 
   ngOnInit(): void {
@@ -85,7 +91,22 @@ export class LoginAndRegistrationComponent implements OnInit {
         error: ({ message }) => `${message}`
       })
     ).subscribe(() => {
+      let currentUser = this.auth.currentUser;
+      set(ref(this.database, 'users/' + currentUser?.uid), {
+        userName: username,
+        userEmail: signupEmail,
+        amount: 0
+      }).then(() => {
+        this.toast.show('Account Created Successfully', { duration: 3000 })
+      }).catch((error) => {
+        this.toast.show(error, { duration: 5000 })
+      });
       this.router.navigate(['/loginAndRegistration/myAccount']);
+    });
+
+    this.signupForm.reset();
+    Object.keys(this.signupForm.controls).forEach(key => {
+      this.signupForm.get(key)?.setErrors(null)
     });
   }
 
@@ -104,8 +125,12 @@ export class LoginAndRegistrationComponent implements OnInit {
       })
     ).subscribe(() => {
       this.router.navigate(['/loginAndRegistration/myAccount']);
+
     });
     this.loginForm.reset();
+    Object.keys(this.loginForm.controls).forEach(key => {
+      this.loginForm.get(key)?.setErrors(null)
+    });
   }
 
 }
