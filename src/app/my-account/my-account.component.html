@@ -1,1 +1,75 @@
-<h1 *ngIf="user$ | async as user"> Welcome to Quikk Transfer {{user.displayName}}!</h1>
+<div class="body">
+  <mat-card class="example-card">
+    <mat-card-header>
+      <div mat-card-avatar class="profile">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+      <mat-card-title *ngIf="user$ | async as user">{{user.displayName}}</mat-card-title>
+      <mat-card-subtitle>Account Balance {{balance}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="sendMoneyForm" (ngSubmit)="submitSendMoneyForm()">
+        <mat-form-field appearance="fill">
+          <mat-label>Send To</mat-label>
+          <input type="text" matInput placeholder="pat@example.com" formControlName="sendToEmail">
+          <mat-error *ngIf="sendToEmail?.errors?.['required']">
+            Email address is required
+          </mat-error>
+          <mat-error *ngIf="sendToEmail?.errors?.['email']">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Amount</mat-label>
+          <input type="number" matInput placeholder="0" formControlName="sendToAmount">
+          <mat-error *ngIf="sendToAmount?.errors?.['required']">
+            Amount is required
+          </mat-error>
+          <mat-error *ngIf="sendToAmount?.errors?.min">
+            minimum amount is 50
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Enter your password</mat-label>
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.errors?.['required']">
+            Password is required
+          </mat-error>
+        </mat-form-field>
+        <button mat-raised-button type="submit" color="primary">Send</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="">
+    <mat-card-header>
+      <mat-card-title>Deposit with MPESA</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="depositMoneyForm" (ngSubmit)="submitDepositMoneyForm()">
+        <mat-form-field appearance="fill">
+          <mat-label>Phone number</mat-label>
+          <input type="tel" matInput placeholder="0712345678" formControlName="phoneNumber">
+          <mat-icon matSuffix>phone</mat-icon>
+          <mat-error *ngIf="phoneNumber?.errors?.['required']">
+            Phone Number is required
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Amount</mat-label>
+          <input type="number" matInput placeholder="0" formControlName="depositAmount">
+          <mat-error *ngIf="depositAmount?.errors?.['required']">
+            Amount is required
+          </mat-error>
+          <mat-error *ngIf="depositAmount?.errors?.min">
+            minimum amount is 50
+          </mat-error>
+        </mat-form-field>
+        <button mat-raised-button color="primary">Deposit</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
