@@ -3,10 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoginAndRegistrationService } from '../login-and-registration/login-and-registration.service';
 import { Auth } from '@angular/fire/auth';
 import { MyAccountService } from './my-account.service';
-import { Database, ref, update, get } from '@angular/fire/database';
 import { HotToastService } from '@ngneat/hot-toast';
 import { User } from './my-account-request-response';
-import { reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 
 @Component({
   selector: 'app-my-account',
@@ -38,12 +36,11 @@ export class MyAccountComponent implements OnInit {
   constructor(private loginAndRegistrationService: LoginAndRegistrationService,
     private auth: Auth,
     private myAccountService: MyAccountService,
-    private database: Database,
     private toast: HotToastService
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.user = await this.getUser(this.currentUserUid);
+    this.user = await this.myAccountService.getUser(this.currentUserUid);
     this.balance = this.user?.amount === undefined ? 0 : this.user.amount;
   }
 
@@ -92,7 +89,7 @@ export class MyAccountComponent implements OnInit {
       (error) => { this.toast.show(error, { duration: 5000 }) },
       async () => {
         if (Object.keys(initialDAta).length > 0 && parseInt(sendToAmount) < this.balance && sendToEmail !== this.currentUserEmail) {
-          if (await this.reauthenticateUser(password)) {
+          if (await this.myAccountService.reauthenticateUser(password)) {
             this.sendMoney(userId, sendToAmount);
           } else {
             this.toast.show('incorrect password', { duration: 5000 })
@@ -126,57 +123,18 @@ export class MyAccountComponent implements OnInit {
 
     this.balance = (this.balance + parseInt(depositAmount));
 
-    this.updateUserAmount(this.currentUserUid, this.balance);
+    this.myAccountService.updateUserAmount(this.currentUserUid, this.balance);
 
     this.resetForm(this.depositMoneyForm);
   }
 
-  updateUserAmount(id: string, amount: number) {
-    update(ref(this.database, 'users/' + id), {
-      amount: amount,
-    }).then(() => {
-      if (this.currentUser?.uid === id) {
-        this.toast.show('New balance is Ksh ' + amount,
-          {
-            duration: 3000,
-          });
-      }
-    }).catch((error) => {
-      this.toast.show(error, { duration: 5000 })
-    });
-  }
-
   async sendMoney(userId: string, sendToAmount: any) {
     this.balance = this.balance - parseInt(sendToAmount);
-    this.updateUserAmount(this.currentUserUid, this.balance);
+    this.myAccountService.updateUserAmount(this.currentUserUid, this.balance);
 
-    this.user = await this.getUser(userId);
+    this.user = await this.myAccountService.getUser(userId);
     let recipientAmount = parseInt(this.user?.amount + sendToAmount);
-    this.updateUserAmount(userId, recipientAmount);
-  }
-
-  async getUser(id: string) {
-    const snapshot = await get(ref(this.database, 'users/' + id));
-    this.user = snapshot.val();
-    return this.user;
-  }
-
-  async reauthenticateUser(password: string) {
-    let authenticated = false;
-    if (this.currentUser) {
-      const credential = EmailAuthProvider.credential(
-        this.currentUser?.email === null ? '' : this.currentUser.email,
-        password
-      );
-      await reauthenticateWithCredential(this.currentUser, credential).then(() => {
-        // User re-authenticated.
-        authenticated = true;
-      }).catch((error) => {
-        this.toast.show('incorect password!!' + error, { duration: 5000 })
-      });
-    }
-
-    return authenticated;
+    this.myAccountService.updateUserAmount(userId, recipientAmount);
   }
 
 }

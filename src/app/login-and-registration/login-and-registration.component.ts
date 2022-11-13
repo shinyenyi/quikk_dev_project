@@ -1,12 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HotToastService } from '@ngneat/hot-toast';
-import { Auth } from '@angular/fire/auth';
 import { LoginAndRegistrationService } from './login-and-registration.service';
-import { User } from '../my-account/my-account-request-response';
-import { Database, set, ref, update, onValue, remove } from '@angular/fire/database';
 
 export function passwordsMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -45,10 +41,7 @@ export class LoginAndRegistrationComponent implements OnInit {
 
   constructor(private loginAndRegistrationService: LoginAndRegistrationService,
     private router: Router,
-    private toast: HotToastService,
-    private auth: Auth,
-    private database: Database
-  ) { }
+    private toast: HotToastService  ) { }
 
   ngOnInit(): void {
   }
@@ -91,23 +84,11 @@ export class LoginAndRegistrationComponent implements OnInit {
         error: ({ message }) => `${message}`
       })
     ).subscribe(() => {
-      let currentUser = this.auth.currentUser;
-      set(ref(this.database, 'users/' + currentUser?.uid), {
-        userName: username,
-        userEmail: signupEmail,
-        amount: 0
-      }).then(() => {
-        this.toast.show('Account Created Successfully', { duration: 3000 })
-      }).catch((error) => {
-        this.toast.show(error, { duration: 5000 })
-      });
+      this.loginAndRegistrationService.createUserAccount(username, signupEmail);
       this.router.navigate(['/loginAndRegistration/myAccount']);
     });
 
-    this.signupForm.reset();
-    Object.keys(this.signupForm.controls).forEach(key => {
-      this.signupForm.get(key)?.setErrors(null)
-    });
+    this.resetForm(this.signupForm);
   }
 
   submitLoginForm() {
@@ -127,9 +108,13 @@ export class LoginAndRegistrationComponent implements OnInit {
       this.router.navigate(['/loginAndRegistration/myAccount']);
 
     });
-    this.loginForm.reset();
-    Object.keys(this.loginForm.controls).forEach(key => {
-      this.loginForm.get(key)?.setErrors(null)
+    this.resetForm(this.loginForm);
+  }
+
+  resetForm(form: FormGroup) {
+    form.reset();
+    Object.keys(form.controls).forEach(key => {
+      form.get(key)?.setErrors(null)
     });
   }
 
