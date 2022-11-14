@@ -31,10 +31,10 @@ export class LoginAndRegistrationService {
     return from(this.auth.signOut());
   }
 
-  createUserAccount(username: string, signupEmail: string) {
+  createUserAccount(phoneNumber: number, signupEmail: string) {
     let currentUser = this.auth.currentUser;
     set(ref(this.database, 'users/' + currentUser?.uid), {
-      userName: username,
+      phoneNumber: phoneNumber,
       userEmail: signupEmail,
       amount: 0
     }).then(() => {

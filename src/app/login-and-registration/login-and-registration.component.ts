@@ -31,7 +31,7 @@ export class LoginAndRegistrationComponent implements OnInit {
   });
 
   signupForm = new FormGroup({
-    username: new FormControl('', [Validators.required]),
+    phoneNumber: new FormControl('', [Validators.required]),
     signupEmail: new FormControl('', [Validators.required, Validators.email]),
     signupPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
     confirmPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
@@ -46,8 +46,8 @@ export class LoginAndRegistrationComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  get username() {
-    return this.signupForm.get('username');
+  get phoneNumber() {
+    return this.signupForm.get('phoneNumber');
   }
 
   get signupEmail() {
@@ -71,20 +71,20 @@ export class LoginAndRegistrationComponent implements OnInit {
   }
 
   submitSignupForm() {
-    const { username, signupEmail, signupPassword } = this.signupForm.value;
+    const { phoneNumber, signupEmail, signupPassword } = this.signupForm.value;
 
-    if (!this.signupForm.valid || !username || !signupEmail || !signupPassword) {
+    if (!this.signupForm.valid || !phoneNumber || !signupEmail || !signupPassword) {
       return;
     }
 
-    this.loginAndRegistrationService.signup(username, signupEmail, signupPassword).pipe(
+    this.loginAndRegistrationService.signup(phoneNumber, signupEmail, signupPassword).pipe(
       this.toast.observe({
         success: 'Registered Successfully',
         loading: 'Signing in...',
         error: ({ message }) => `${message}`
       })
     ).subscribe(() => {
-      this.loginAndRegistrationService.createUserAccount(username, signupEmail);
+      this.loginAndRegistrationService.createUserAccount(phoneNumber, signupEmail);
       this.router.navigate(['/loginAndRegistration/myAccount']);
     });
 

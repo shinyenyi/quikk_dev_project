@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Database, ref, update, get } from '@angular/fire/database';
+import { Database, ref, update, get, set, query, orderByChild, equalTo } from '@angular/fire/database';
 import { Auth } from '@angular/fire/auth';
 import { HotToastService } from '@ngneat/hot-toast';
 import { User } from './my-account-request-response';
@@ -52,6 +52,13 @@ export class MyAccountService {
     return this.user;
   }
 
+  async getUserTransactions(email: string, attribute: string) {
+    const transactionsRef = query(ref(this.database, 'transactions'), orderByChild(attribute), equalTo(email))
+    const snapshot = await get(transactionsRef);
+    let transactions = snapshot.val();
+    return transactions;
+  }
+
   async reauthenticateUser(password: string) {
     let authenticated = false;
     if (this.currentUser) {
@@ -68,6 +75,20 @@ export class MyAccountService {
     }
 
     return authenticated;
+  }
+
+  saveUserTransaction(sendTo: string, recievedFrom: string, amount: number, time: string) {
+    let randomId = Math.random().toString(36).substring(7, 13);
+    set(ref(this.database, 'transactions/' + time + randomId), {
+      recievedFrom: recievedFrom,
+      sendTo: sendTo,
+      amount: amount,
+      time: time
+    }).then(() => {
+      this.toast.show('Transaction Saved Successfully', { duration: 3000 })
+    }).catch((error) => {
+      this.toast.show(error, { duration: 5000 })
+    });
   }
 
 }

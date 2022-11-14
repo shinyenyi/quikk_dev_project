@@ -5,6 +5,8 @@ import { Auth } from '@angular/fire/auth';
 import { MyAccountService } from './my-account.service';
 import { HotToastService } from '@ngneat/hot-toast';
 import { User } from './my-account-request-response';
+import { formatDate } from '@angular/common';
+import { Transaction } from './my-account-request-response';
 
 @Component({
   selector: 'app-my-account',
@@ -32,6 +34,10 @@ export class MyAccountComponent implements OnInit {
   currentUserEmail = this.currentUser?.email === undefined ? '' : this.currentUser.email;
   currentAmount = 0;
   user: User | undefined;
+  sentTransactionsArray: Transaction[] = [];
+  sentTransactions: any = {};
+  recievedTransactionsArray: Transaction[] = [];
+  recievedTransactions: any = {};
 
   constructor(private loginAndRegistrationService: LoginAndRegistrationService,
     private auth: Auth,
@@ -42,6 +48,24 @@ export class MyAccountComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.user = await this.myAccountService.getUser(this.currentUserUid);
     this.balance = this.user?.amount === undefined ? 0 : this.user.amount;
+    this.getTransactions();
+  }
+
+  async getTransactions() {
+    this.sentTransactionsArray = [];
+    this.recievedTransactions = {};
+    this.sentTransactions = {}
+    this.recievedTransactionsArray = [];
+    this.sentTransactions = await this.myAccountService.getUserTransactions(this.currentUserEmail === null ? '' : this.currentUserEmail, 'recievedFrom');
+    this.recievedTransactions = await this.myAccountService.getUserTransactions(this.currentUserEmail === null ? '' : this.currentUserEmail, 'sendTo');
+    this.createTransactionsArray(this.sentTransactions, this.sentTransactionsArray);
+    this.createTransactionsArray(this.recievedTransactions, this.recievedTransactionsArray)
+  }
+
+  createTransactionsArray(obj: any, arr: Transaction[]) {
+    Object.keys(obj).forEach((key) => {
+      return arr.push(obj[key]);
+    });
   }
 
   get phoneNumber() {
@@ -97,7 +121,7 @@ export class MyAccountComponent implements OnInit {
         }
       }
     );
-
+    this.getTransactions();
     this.resetForm(this.sendMoneyForm);
   }
 
@@ -117,7 +141,7 @@ export class MyAccountComponent implements OnInit {
 
     if (!confirm("deosit Ksh " + depositAmount)) {
       this.resetForm(this.depositMoneyForm);
-      this.toast.show('transaction cancelled', { duration: 5000 })
+      this.toast.show('transaction cancelled', { duration: 5000 });
       return;
     }
 
@@ -125,6 +149,14 @@ export class MyAccountComponent implements OnInit {
 
     this.myAccountService.updateUserAmount(this.currentUserUid, this.balance);
 
+    let time = this.getCurrentTime();
+    this.myAccountService.saveUserTransaction(
+      this.currentUserEmail === null ? '' : this.currentUserEmail,
+      'MPESA',
+      depositAmount,
+      time
+    );
+    this.getTransactions();
     this.resetForm(this.depositMoneyForm);
   }
 
@@ -135,6 +167,20 @@ export class MyAccountComponent implements OnInit {
     this.user = await this.myAccountService.getUser(userId);
     let recipientAmount = parseInt(this.user?.amount + sendToAmount);
     this.myAccountService.updateUserAmount(userId, recipientAmount);
+
+    let time = this.getCurrentTime();
+    this.myAccountService.saveUserTransaction(
+      this.user?.userEmail === undefined ? '' : this.user.userEmail,
+      this.currentUserEmail === null ? '' : this.currentUserEmail,
+      sendToAmount,
+      time
+    );
+  }
+
+  getCurrentTime() {
+    let date = new Date();
+    let time = formatDate(date, 'dd-MM-yyyy, hh:mm:ss a', 'en-US', '+0300');
+    return time;
   }
 
 }

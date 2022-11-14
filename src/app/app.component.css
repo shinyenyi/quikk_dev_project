@@ -1,14 +1,27 @@
-body{
+body {
 	margin: 0;
 	padding: 0;
+	padding-top: 20px;
+	padding-bottom: 20px;
 	display: flex;
 	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
+	height: 100%;
+	width: 100%;
 	font-family: 'Jost', sans-serif;
-	background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+	/* background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); */
+	background: #0f0c29;
+}
+
+footer {
+	height: 50px;
+	width: 100%;
+	background: #0f0c29;
 }
 
 mat-toolbar {
 	justify-content: space-between;
 }
+
+/* router-outlet {
+	
+} */

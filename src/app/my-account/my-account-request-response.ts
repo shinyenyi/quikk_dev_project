@@ -1,14 +1,17 @@
 
 export class User {
   constructor(
-    public userName:string,
-    public amount:number,
-    public userEmail:string
-  ){}
+    public phoneNumber: number,
+    public amount: number,
+    public userEmail: string
+  ) { }
 }
 
-export class Response {
+export class Transaction {
   constructor(
-      public name: string,
+    public amount: number,
+    public recievedFrom: string,
+    public sendTo: string,
+    public time: string,
   ) { }
 }

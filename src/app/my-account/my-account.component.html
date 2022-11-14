@@ -72,4 +72,26 @@
       </form>
     </mat-card-content>
   </mat-card>
+  <mat-card class="">
+    <mat-card-header>
+      <mat-card-title>Sent Transactions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list role="list" *ngFor="let transaction of sentTransactionsArray">
+        <mat-list-item role="listitem">** Ksh {{transaction?.amount}} sent to {{transaction?.sendTo}} at
+          {{transaction?.time}}</mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="">
+    <mat-card-header>
+      <mat-card-title>Recieved Transactions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list role="list" *ngFor="let transaction of recievedTransactionsArray">
+        <mat-list-item role="listitem">** Ksh {{transaction?.amount}} recieved from {{transaction?.recievedFrom}} at
+          {{transaction?.time}}</mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
 </div>
