@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoginAndRegistrationService } from '../login-and-registration/login-and-registration.service';
 import { Auth } from '@angular/fire/auth';
 import { MyAccountService } from './my-account.service';
-import { Database, ref, update, get } from '@angular/fire/database';
+import { Database, ref, update, get, onValue } from '@angular/fire/database';
 import { HotToastService } from '@ngneat/hot-toast';
 import { User } from './my-account-request-response';
 import { reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
@@ -45,6 +45,16 @@ export class MyAccountComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.user = await this.getUser(this.currentUserUid);
     this.balance = this.user?.amount === undefined ? 0 : this.user.amount;
+    this.updateUserBalance();
+  }
+
+
+  updateUserBalance() {
+    const amountRef = ref(this.database, 'users/' + this.currentUserUid + '/amount');
+    onValue(amountRef, (snapshot) => {
+      const data = snapshot.val();
+      this.balance = data;
+    });
   }
 
   get phoneNumber() {
