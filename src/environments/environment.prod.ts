@@ -7,6 +7,7 @@ export const environment = {
     authDomain: 'quikk-f65e1.firebaseapp.com',
     messagingSenderId: '157486814593',
     measurementId: 'G-Y1XNT7THCL',
+    databaseURL: 'https://quikk-f65e1-default-rtdb.europe-west1.firebasedatabase.app/',
   },
   production: true
 };
